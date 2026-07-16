@@ -1,12 +1,16 @@
 :80 {
   encode zstd gzip
 
-  handle_path /api/* {
-    reverse_proxy chatjpt-api:8080 {
-      flush_interval -1
+  route {
+    handle_path /api/* {
+      reverse_proxy chatjpt-api:8080 {
+        flush_interval -1
+      }
+    }
+
+    handle {
+      try_files {path} /index.html
+      file_server
     }
   }
-
-  try_files {path} /index.html
-  file_server
 }
