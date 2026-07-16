@@ -1,0 +1,11 @@
+.git
+.github
+.nuxt
+.output
+node_modules
+test-results
+playwright-report
+coverage
+*.log
+README.md
+CLAUDE.md

@@ -1,0 +1,225 @@
+/* Tema gruvbox conforme o design de referência. */
+:root {
+  --bg-hard: #1d2021;
+  --bg0: #282828;
+  --bg-soft: #32302f;
+  --bg1: #3c3836;
+  --bg2: #504945;
+  --fg: #ebdbb2;
+  --fg2: #d5c4a1;
+  --fg3: #bdae93;
+  --fg4: #a89984;
+  --gray: #928374;
+  --muted: #7c6f64;
+  --faint: #665c54;
+  --red: #fb4934;
+  --orange: #fe8019;
+  --green: #b8bb26;
+  --yellow: #fabd2f;
+  --aqua: #8ec07c;
+  --purple: #d3869b;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --font-sans: 'Instrument Sans', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#__nuxt {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg0);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+a {
+  color: var(--red);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--orange);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg2);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---- Conteúdo Markdown das mensagens do assistente ---- */
+
+.markdown-body {
+  color: var(--fg);
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: break-word;
+}
+
+.markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.markdown-body > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body p {
+  margin: 0 0 12px;
+}
+
+.markdown-body strong {
+  color: var(--yellow);
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.markdown-body li {
+  margin: 4px 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  color: var(--fg);
+  margin: 18px 0 10px;
+  line-height: 1.4;
+}
+
+.markdown-body h1 { font-size: 18px; }
+.markdown-body h2 { font-size: 16px; }
+.markdown-body h3 { font-size: 15px; }
+.markdown-body h4 { font-size: 14px; }
+
+.markdown-body code {
+  color: var(--aqua);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.markdown-body blockquote {
+  margin: 0 0 12px;
+  padding: 2px 14px;
+  border-left: 3px solid var(--bg2);
+  color: var(--fg4);
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  margin: 0 0 12px;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--bg1);
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* Bloco de código com cabeçalho (linguagem + copiar), como no design. */
+.code-block {
+  background: var(--bg-hard);
+  border: 1px solid var(--bg1);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 0 12px;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--bg-soft);
+}
+
+.code-block-lang {
+  color: var(--gray);
+  font-size: 11px;
+}
+
+.code-copy {
+  color: var(--gray);
+  font-size: 11px;
+}
+
+.code-copy:hover {
+  color: var(--fg);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 16px 18px;
+  font: 400 13px/1.75 var(--font-mono);
+  color: var(--fg);
+  overflow: auto;
+}
+
+.code-block code {
+  color: var(--fg);
+}
+
+/* Cursor de streaming ao final da mensagem em geração. */
+.streaming-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: var(--red);
+  vertical-align: text-bottom;
+  margin-left: 3px;
+  animation: cursor-blink 1s steps(2) infinite;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streaming-cursor {
+    animation: none;
+  }
+}
