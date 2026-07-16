@@ -66,7 +66,20 @@ describe('store de chat', () => {
     expect(chat.activeConversation?.title).toBe('Explique FIFO')
     expect(chat.activeConversation?.messages.map(message => message.content)).toEqual(['Explique FIFO', 'Resposta completa'])
     expect(chat.status).toBe('idle')
+		expect(JSON.parse(fetchMock.mock.calls[2]?.[1]?.body as string)).toMatchObject({ model: 'qwen2.5:1.5b-instruct' })
   })
+
+  it('carrega o catalogo de modelos e seleciona o primeiro disponivel', async () => {
+		fetchMock.mockResolvedValueOnce(jsonResponse({ data: [
+			{ id: 'qwen3:4b-instruct', object: 'model', owned_by: 'chatjpt' },
+		] }))
+
+		const chat = useChatStore()
+		await chat.loadModels()
+
+		expect(chat.models.map(model => model.id)).toEqual(['qwen3:4b-instruct'])
+		expect(chat.selectedModel).toBe('qwen3:4b-instruct')
+	})
 
   it('apresenta a falha enviada pelo gateway no stream', async () => {
     const conversationID = '11111111-1111-4111-8111-111111111111'

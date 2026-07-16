@@ -7,6 +7,7 @@ const chat = useChatStore()
 const ui = useUiStore()
 
 onMounted(() => {
+  void chat.loadModels()
   void chat.loadConversations()
 })
 </script>

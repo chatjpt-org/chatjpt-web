@@ -4,10 +4,12 @@ import {
   createConversation as createConversationRequest,
   deleteConversation as deleteConversationRequest,
   listConversations,
+  listModels as listModelsRequest,
   listMessages,
   renameConversation,
   streamMessage,
 } from '~/services/jchat-api'
+import type { ApiModel } from '~/services/jchat-api'
 import type { ChatStatus, Conversation, Message } from '~/types/chat'
 
 const DEFAULT_MODEL = 'qwen2.5:1.5b-instruct'
@@ -37,6 +39,9 @@ export const useChatStore = defineStore('chat', () => {
   const errorMessage = ref<string | null>(null)
   const searchQuery = ref('')
   const loadingConversations = ref(false)
+  const models = ref<ApiModel[]>([])
+  const selectedModel = ref(DEFAULT_MODEL)
+  const loadingModels = ref(false)
   let abortController: AbortController | null = null
 
   const activeConversation = computed(
@@ -98,8 +103,25 @@ export const useChatStore = defineStore('chat', () => {
       content: message.content,
       createdAt: timestamp(message.created_at),
       state: 'done',
-      model: message.role === 'assistant' ? DEFAULT_MODEL : undefined,
+      model: message.role === 'assistant' ? (message.model ?? DEFAULT_MODEL) : undefined,
     }))
+  }
+
+  async function loadModels() {
+    loadingModels.value = true
+    try {
+      const availableModels = await listModelsRequest()
+      models.value = availableModels
+      if (availableModels.some(model => model.id === selectedModel.value)) return
+      selectedModel.value = availableModels[0]?.id ?? DEFAULT_MODEL
+    }
+    catch (error) {
+      models.value = []
+      errorMessage.value = messageForError(error)
+    }
+    finally {
+      loadingModels.value = false
+    }
   }
 
   async function newConversation(): Promise<Conversation | undefined> {
@@ -175,7 +197,7 @@ export const useChatStore = defineStore('chat', () => {
       content: '',
       createdAt: Date.now(),
       state: 'streaming',
-      model: DEFAULT_MODEL,
+      model: selectedModel.value,
     }
     conversation.messages.push(userMessage, reply)
     conversation.updatedAt = Date.now()
@@ -191,6 +213,7 @@ export const useChatStore = defineStore('chat', () => {
 
     try {
       await streamMessage(conversation.id, content, {
+        model: selectedModel.value,
         maxTokens: MAX_TOKENS,
         signal: abortController.signal,
         onDelta(delta) {
@@ -274,6 +297,10 @@ export const useChatStore = defineStore('chat', () => {
     errorMessage,
     searchQuery,
     loadingConversations,
+    models,
+    selectedModel,
+    loadingModels,
+    loadModels,
     loadConversations,
     newConversation,
     selectConversation,

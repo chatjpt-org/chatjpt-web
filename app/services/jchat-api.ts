@@ -11,10 +11,17 @@ export interface ApiConversation {
 }
 
 export interface ApiMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  created_at: string
+	id: string
+	role: 'user' | 'assistant'
+	content: string
+	model?: string
+	created_at: string
+}
+
+export interface ApiModel {
+	id: string
+	object: string
+	owned_by: string
 }
 
 interface ApiErrorResponse {
@@ -96,7 +103,12 @@ export function signOut(): Promise<void> {
 }
 
 export function getSession(): Promise<ApiUser> {
-  return request<ApiUser>('/v1/auth/session')
+	return request<ApiUser>('/v1/auth/session')
+}
+
+export async function listModels(): Promise<ApiModel[]> {
+	const response = await request<ApiDataResponse<ApiModel[]>>('/v1/models')
+	return response.data
 }
 
 export async function listConversations(): Promise<ApiConversation[]> {
@@ -154,7 +166,8 @@ export async function streamMessage(
   conversationID: string,
   content: string,
   options: {
-    maxTokens: number
+	model: string
+	maxTokens: number
     signal: AbortSignal
     onDelta: (delta: string) => void
   },
@@ -167,7 +180,7 @@ export async function streamMessage(
       Accept: 'text/event-stream',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ content, max_tokens: options.maxTokens }),
+    body: JSON.stringify({ content, model: options.model, max_tokens: options.maxTokens }),
   })
 
   if (!response.ok) throw await readError(response)
