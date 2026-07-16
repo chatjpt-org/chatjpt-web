@@ -17,6 +17,9 @@ test('fluxo integrado: login, conversa e resposta SSE', async ({ page }) => {
       signedIn = true
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ id: 'user-1', username: 'arthur' }) })
     }
+    if (path === '/api/v1/models') {
+      return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [{ id: 'qwen2.5:1.5b-instruct', object: 'model', owned_by: 'chatjpt' }] }) })
+    }
     if (path === '/api/v1/conversations' && request.method() === 'GET') {
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [] }) })
     }
