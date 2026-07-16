@@ -51,9 +51,9 @@ intercepta `/api` para validar a interface sem depender de credenciais reais.
 
 ## Deploy na KVM2
 
-O `compose.yaml` expoe somente `127.0.0.1:8085`. O Cloudflare Tunnel e o unico
+O `compose.yaml` expoe somente `127.0.0.1:8086`. O Cloudflare Tunnel e o unico
 componente que publica o dominio, apontando `jchat.devarthur.com.br` para
-`http://localhost:8085` na KVM2.
+`http://localhost:8086` na KVM2.
 
 O workflow `deploy.yml` usa SSH pelo Cloudflare Access e so executa quando a
 repository variable `DEPLOY_ENABLED` for `true`. Ele exige o secret
