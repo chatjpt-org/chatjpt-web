@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Paperclip, SendHorizontal, Square } from '@lucide/vue'
 import { computed, ref } from 'vue'
+import ChatModelPicker from '~/components/chat/ChatModelPicker.vue'
 import { useChatStore } from '~/stores/chat'
 
 const chat = useChatStore()
@@ -50,13 +51,7 @@ function resizeTextarea() {
         </button>
 
         <div class="composer-toolbar-right">
-          <label class="model-selector" title="Modelo selecionado para a proxima resposta">
-            <span class="status-dot" aria-hidden="true" />
-            <select v-model="chat.selectedModel" :disabled="chat.isBusy || chat.models.length === 0" aria-label="Modelo de IA">
-              <option v-for="model in chat.models" :key="model.id" :value="model.id">{{ model.id }}</option>
-              <option v-if="chat.models.length === 0" :value="chat.selectedModel">Nenhum modelo disponivel</option>
-            </select>
-          </label>
+          <ChatModelPicker />
           <button v-if="chat.isBusy" type="button" class="send-button" aria-label="Parar geracao" title="Parar geracao" @click="chat.stopStreaming()">
             <Square :size="13" fill="currentColor" aria-hidden="true" />
           </button>
@@ -81,14 +76,9 @@ function resizeTextarea() {
 .composer-attach { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; color: var(--muted); }
 .composer-attach:disabled { opacity: 0.5; cursor: default; }
 .composer-toolbar-right { display: flex; align-items: center; gap: 10px; }
-.model-selector { display: flex; align-items: center; gap: 7px; padding: 5px 10px; color: var(--fg3); font-size: 12px; }
-.model-selector select { max-width: 220px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
-.model-selector select:focus { outline: 1px solid var(--bg2); outline-offset: 3px; }
-.model-selector select:disabled { cursor: default; opacity: 0.65; }
-.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 .send-button { width: 32px; height: 32px; border-radius: 8px; background: var(--red); display: grid; place-items: center; color: var(--bg-hard); }
 .send-button:hover:not(:disabled) { background: var(--orange); }
 .send-button:disabled { opacity: 0.45; cursor: default; }
 .composer-disclaimer { margin: 0; font-size: 10.5px; color: var(--faint); text-align: center; }
-@media (max-width: 900px) { .composer-area { padding: 10px 12px 12px; } .model-selector { max-width: 50vw; } .model-selector select { max-width: 42vw; } }
+@media (max-width: 900px) { .composer-area { padding: 10px 12px 12px; } }
 </style>

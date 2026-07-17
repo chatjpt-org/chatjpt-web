@@ -18,7 +18,10 @@ test('fluxo integrado: login, conversa e resposta SSE', async ({ page }) => {
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ id: 'user-1', username: 'arthur' }) })
     }
     if (path === '/api/v1/models') {
-      return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [{ id: 'qwen2.5:1.5b-instruct', object: 'model', owned_by: 'chatjpt' }] }) })
+      return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [
+        { id: 'qwen2.5:1.5b-instruct', object: 'model', owned_by: 'chatjpt' },
+        { id: 'qwen3:4b-instruct', object: 'model', owned_by: 'chatjpt' },
+      ] }) })
     }
     if (path === '/api/v1/conversations' && request.method() === 'GET') {
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [] }) })
@@ -52,6 +55,11 @@ test('fluxo integrado: login, conversa e resposta SSE', async ({ page }) => {
   await expect(page).toHaveURL(/\/$/)
   await page.locator('.sidebar').getByRole('button', { name: 'Nova conversa' }).click()
   await expect(page.getByText('Conversa nova')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Selecionar modelo' }).click()
+  await expect(page.getByRole('dialog', { name: 'Selecionar modelo' })).toBeVisible()
+  await page.locator('[data-model-id="qwen3:4b-instruct"]').click()
+  await expect(page.getByRole('button', { name: 'Selecionar modelo' })).toContainText('qwen3:4b-instruct')
 
   const composer = page.getByPlaceholder('Escreva uma mensagem...')
   await composer.fill('Me explique o que e RAG')
