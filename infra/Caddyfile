@@ -1,6 +1,4 @@
 :80 {
-  encode zstd gzip
-
   route {
     handle_path /api/* {
       reverse_proxy chatjpt-api:8080 {
@@ -9,6 +7,7 @@
     }
 
     handle {
+      encode zstd gzip
       try_files {path} /index.html
       file_server
     }
