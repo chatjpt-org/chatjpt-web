@@ -63,13 +63,17 @@ async function onContentClick(event: MouseEvent) {
     </div>
 
     <template v-else>
-      <div class="markdown-body" @click="onContentClick">
-        <!-- eslint-disable-next-line vue/no-v-html -- HTML sanitizado com DOMPurify em renderMarkdown -->
-        <span v-html="html" />
-        <span v-if="message.state === 'streaming'" class="streaming-cursor" aria-hidden="true" />
+      <div v-if="message.state === 'streaming'" class="markdown-body streaming-body">
+        {{ message.content }}<span class="streaming-cursor" aria-hidden="true" />
       </div>
 
-      <div v-if="message.state === 'done'" class="message-actions">
+      <template v-else>
+        <div class="markdown-body" @click="onContentClick">
+        <!-- eslint-disable-next-line vue/no-v-html -- HTML sanitizado com DOMPurify em renderMarkdown -->
+          <span v-html="html" />
+        </div>
+
+        <div v-if="message.state === 'done'" class="message-actions">
         <button
           type="button"
           class="message-action"
@@ -100,7 +104,8 @@ async function onContentClick(event: MouseEvent) {
         >
           <ThumbsDown :size="14" aria-hidden="true" />
         </button>
-      </div>
+        </div>
+      </template>
     </template>
   </div>
 </template>
@@ -179,6 +184,11 @@ async function onContentClick(event: MouseEvent) {
   color: var(--fg);
   font-size: 13px;
   line-height: 1.6;
+}
+
+.streaming-body {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 </style>

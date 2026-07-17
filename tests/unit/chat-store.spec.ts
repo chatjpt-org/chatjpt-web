@@ -10,6 +10,30 @@ function sseResponse(events: string): Response {
   return new Response(events, { status: 200, headers: { 'Content-Type': 'text/event-stream' } })
 }
 
+function incrementalSSE(): {
+  response: Response
+  send: (event: string) => void
+  close: () => void
+} {
+  let controller: ReadableStreamDefaultController<Uint8Array>
+  const body = new ReadableStream<Uint8Array>({
+    start(streamController) {
+      controller = streamController
+    },
+  })
+  const encoder = new TextEncoder()
+
+  return {
+    response: new Response(body, { status: 200, headers: { 'Content-Type': 'text/event-stream' } }),
+    send(event) {
+      controller.enqueue(encoder.encode(event))
+    },
+    close() {
+      controller.close()
+    },
+  }
+}
+
 describe('store de chat', () => {
   const fetchMock = vi.fn<typeof fetch>()
 
@@ -67,6 +91,37 @@ describe('store de chat', () => {
     expect(chat.activeConversation?.messages.map(message => message.content)).toEqual(['Explique FIFO', 'Resposta completa'])
     expect(chat.status).toBe('idle')
 		expect(JSON.parse(fetchMock.mock.calls[2]?.[1]?.body as string)).toMatchObject({ model: 'qwen2.5:1.5b-instruct' })
+  })
+
+  it('atualiza a mensagem do assistente antes do fim do stream', async () => {
+    const conversationID = '11111111-1111-4111-8111-111111111111'
+    const stream = incrementalSSE()
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ id: conversationID, title: 'Nova conversa', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z' }, 201))
+      .mockResolvedValueOnce(jsonResponse({ id: conversationID, title: 'Teste de stream', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:01Z' }))
+      .mockResolvedValueOnce(stream.response)
+      .mockResolvedValueOnce(jsonResponse({ data: [
+        { id: '22222222-2222-4222-8222-222222222222', role: 'user', content: 'Teste de stream', created_at: '2026-01-01T00:00:01Z' },
+        { id: '33333333-3333-4333-8333-333333333333', role: 'assistant', content: 'Resposta parcial e final', created_at: '2026-01-01T00:00:02Z' },
+      ] }))
+
+    const chat = useChatStore()
+    await chat.newConversation()
+    const sending = chat.sendMessage('Teste de stream')
+
+    stream.send('data: {"delta":"Resposta parcial"}\n\n')
+    await vi.waitFor(() => {
+      expect(chat.activeConversation?.messages.at(-1)?.content).toBe('Resposta parcial')
+      expect(chat.status).toBe('streaming')
+    })
+
+    stream.send('data: {"delta":" e final"}\n\n')
+    stream.send('data: [DONE]\n\n')
+    stream.close()
+    await sending
+
+    expect(chat.activeConversation?.messages.at(-1)?.content).toBe('Resposta parcial e final')
+    expect(chat.status).toBe('idle')
   })
 
   it('carrega o catalogo de modelos e seleciona o primeiro disponivel', async () => {
