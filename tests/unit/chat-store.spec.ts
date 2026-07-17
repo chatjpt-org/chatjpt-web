@@ -1,4 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia'
+import { nextTick, watch } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useChatStore } from '~/stores/chat'
 
@@ -107,6 +108,11 @@ describe('store de chat', () => {
 
     const chat = useChatStore()
     await chat.newConversation()
+    let renderedContent = ''
+    const stopWatchingReply = watch(
+      () => chat.activeConversation?.messages.at(-1)?.content,
+      content => { renderedContent = content ?? '' },
+    )
     const sending = chat.sendMessage('Teste de stream')
 
     stream.send('data: {"delta":"Resposta parcial"}\n\n')
@@ -114,11 +120,14 @@ describe('store de chat', () => {
       expect(chat.activeConversation?.messages.at(-1)?.content).toBe('Resposta parcial')
       expect(chat.status).toBe('streaming')
     })
+    await nextTick()
+    expect(renderedContent).toBe('Resposta parcial')
 
     stream.send('data: {"delta":" e final"}\n\n')
     stream.send('data: [DONE]\n\n')
     stream.close()
     await sending
+    stopWatchingReply()
 
     expect(chat.activeConversation?.messages.at(-1)?.content).toBe('Resposta parcial e final')
     expect(chat.status).toBe('idle')

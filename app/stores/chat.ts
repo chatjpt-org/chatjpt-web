@@ -191,15 +191,15 @@ export const useChatStore = defineStore('chat', () => {
       createdAt: Date.now(),
       state: 'done',
     }
-    const reply: Message = {
+    conversation.messages.push(userMessage, {
       id: crypto.randomUUID(),
       role: 'assistant',
       content: '',
       createdAt: Date.now(),
       state: 'streaming',
       model: selectedModel.value,
-    }
-    conversation.messages.push(userMessage, reply)
+    })
+    const reply = conversation.messages.at(-1)!
     conversation.updatedAt = Date.now()
 
     status.value = 'loading'
