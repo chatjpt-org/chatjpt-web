@@ -219,4 +219,19 @@ async function onContentClick(event: MouseEvent) {
   overflow-wrap: break-word;
 }
 
+@media (max-width: 600px) {
+  .message-user-bubble {
+    max-width: 92%;
+    padding: 11px 14px;
+  }
+
+  .message-actions {
+    gap: 4px;
+  }
+
+  .message-action {
+    width: 44px;
+    height: 44px;
+  }
+}
 </style>

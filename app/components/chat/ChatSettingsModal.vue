@@ -71,4 +71,26 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .settings-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .settings-signout { display: inline-flex; align-items: center; gap: 8px; color: var(--fg4); font-size: 12px; align-self: flex-start; }
 .settings-signout:hover { color: var(--red); }
+@media (max-width: 600px) {
+  .settings-overlay {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  .settings-modal {
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+  }
+
+  .settings-header,
+  .settings-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .settings-close,
+  .settings-signout {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
 </style>
