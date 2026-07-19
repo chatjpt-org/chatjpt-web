@@ -13,8 +13,7 @@ import type { ApiModel } from '~/services/jchat-api'
 import type { ChatStatus, Conversation, Message } from '~/types/chat'
 
 const DEFAULT_MODEL = 'qwen2.5:1.5b-instruct'
-const MAX_TOKENS = 512
-const STREAM_TIMEOUT_MS = 90_000
+const MAX_TOKENS = 1024
 const TITLE_MAX_LENGTH = 40
 
 function timestamp(value: string): number {
@@ -104,6 +103,7 @@ export const useChatStore = defineStore('chat', () => {
       createdAt: timestamp(message.created_at),
       state: 'done',
       model: message.role === 'assistant' ? (message.model ?? DEFAULT_MODEL) : undefined,
+      incomplete: message.incomplete ?? false,
     }))
   }
 
@@ -198,6 +198,7 @@ export const useChatStore = defineStore('chat', () => {
       createdAt: Date.now(),
       state: 'streaming',
       model: selectedModel.value,
+      incomplete: false,
     })
     const reply = conversation.messages.at(-1)!
     conversation.updatedAt = Date.now()
@@ -205,11 +206,6 @@ export const useChatStore = defineStore('chat', () => {
     status.value = 'loading'
     errorMessage.value = null
     abortController = new AbortController()
-    let timedOut = false
-    const timeout = setTimeout(() => {
-      timedOut = true
-      abortController?.abort()
-    }, STREAM_TIMEOUT_MS)
 
     try {
       await streamMessage(conversation.id, content, {
@@ -220,20 +216,23 @@ export const useChatStore = defineStore('chat', () => {
           reply.content += delta
           status.value = 'streaming'
         },
+        onIncomplete() {
+          reply.incomplete = true
+        },
       })
       await loadMessages(conversation.id)
       status.value = 'idle'
     }
     catch (error) {
-      if (timedOut) {
-        reply.state = 'error'
-        reply.content = 'O modelo nao respondeu a tempo. Tente novamente em alguns instantes.'
-        errorMessage.value = reply.content
-        status.value = 'error'
-      }
-      else if (isAbortError(error)) {
+      if (isAbortError(error)) {
         // O servidor pode concluir a resposta depois do cancelamento do navegador.
         await refreshAfterAbort(conversation.id)
+        status.value = 'idle'
+      }
+      else if (reply.content) {
+        reply.incomplete = true
+        reply.state = 'done'
+        errorMessage.value = 'A resposta foi interrompida, mas o conteudo recebido foi preservado.'
         status.value = 'idle'
       }
       else {
@@ -244,7 +243,6 @@ export const useChatStore = defineStore('chat', () => {
       }
     }
     finally {
-      clearTimeout(timeout)
       abortController = null
     }
   }

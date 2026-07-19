@@ -15,6 +15,7 @@ export interface ApiMessage {
 	role: 'user' | 'assistant'
 	content: string
 	model?: string
+	incomplete?: boolean
 	created_at: string
 }
 
@@ -38,6 +39,7 @@ interface ApiDataResponse<T> {
 interface StreamEvent {
   delta?: string
   finish_reason?: string
+  incomplete?: boolean
   error?: {
     message?: string
     code?: string
@@ -133,7 +135,7 @@ export async function listMessages(conversationID: string): Promise<ApiMessage[]
   return response.data
 }
 
-function consumeEvent(rawEvent: string, onDelta: (delta: string) => void): boolean {
+function consumeEvent(rawEvent: string, onDelta: (delta: string) => void, onIncomplete: () => void): boolean {
   const data = rawEvent
     .split(/\r?\n/)
     .filter(line => line.startsWith('data:'))
@@ -159,6 +161,7 @@ function consumeEvent(rawEvent: string, onDelta: (delta: string) => void): boole
     )
   }
   if (event.delta) onDelta(event.delta)
+  if (event.incomplete) onIncomplete()
   return false
 }
 
@@ -170,6 +173,7 @@ export async function streamMessage(
 	maxTokens: number
     signal: AbortSignal
     onDelta: (delta: string) => void
+    onIncomplete: () => void
   },
 ): Promise<void> {
   const response = await fetch(`/api/v1/conversations/${conversationID}/messages`, {
@@ -200,13 +204,13 @@ export async function streamMessage(
       const events = buffer.split(/\r?\n\r?\n/)
       buffer = events.pop() ?? ''
       for (const event of events) {
-        if (consumeEvent(event, options.onDelta)) return
+        if (consumeEvent(event, options.onDelta, options.onIncomplete)) return
       }
 
       if (done) break
     }
 
-    if (buffer.trim() && consumeEvent(buffer, options.onDelta)) return
+    if (buffer.trim() && consumeEvent(buffer, options.onDelta, options.onIncomplete)) return
     throw new JChatApiError('O streaming foi encerrado sem confirmacao final.', 502, 'incomplete_stream')
   }
   finally {

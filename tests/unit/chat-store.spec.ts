@@ -91,9 +91,31 @@ describe('store de chat', () => {
     expect(chat.activeConversation?.title).toBe('Explique FIFO')
     expect(chat.activeConversation?.messages.map(message => message.content)).toEqual(['Explique FIFO', 'Resposta completa'])
     expect(chat.status).toBe('idle')
-		expect(JSON.parse(fetchMock.mock.calls[2]?.[1]?.body as string)).toMatchObject({ model: 'qwen2.5:1.5b-instruct' })
+		expect(JSON.parse(fetchMock.mock.calls[2]?.[1]?.body as string)).toMatchObject({ model: 'qwen2.5:1.5b-instruct', max_tokens: 1024 })
   })
 
+  it('preserva e identifica uma resposta interrompida pelo backend', async () => {
+    const conversationID = '11111111-1111-4111-8111-111111111111'
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ id: conversationID, title: 'Nova conversa', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z' }, 201))
+      .mockResolvedValueOnce(jsonResponse({ id: conversationID, title: 'Teste', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:01Z' }))
+      .mockResolvedValueOnce(sseResponse('data: {"delta":"Resposta parcial"}\n\ndata: {"incomplete":true,"finish_reason":"length"}\n\ndata: [DONE]\n\n'))
+      .mockResolvedValueOnce(jsonResponse({ data: [
+        { id: '22222222-2222-4222-8222-222222222222', role: 'user', content: 'Teste', created_at: '2026-01-01T00:00:01Z' },
+        { id: '33333333-3333-4333-8333-333333333333', role: 'assistant', content: 'Resposta parcial', incomplete: true, created_at: '2026-01-01T00:00:02Z' },
+      ] }))
+
+    const chat = useChatStore()
+    await chat.newConversation()
+    await chat.sendMessage('Teste')
+
+    expect(chat.activeConversation?.messages.at(-1)).toMatchObject({
+      content: 'Resposta parcial',
+      incomplete: true,
+      state: 'done',
+    })
+    expect(chat.status).toBe('idle')
+  })
   it('atualiza a mensagem do assistente antes do fim do stream', async () => {
     const conversationID = '11111111-1111-4111-8111-111111111111'
     const stream = incrementalSSE()

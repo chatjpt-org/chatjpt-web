@@ -14,6 +14,7 @@ export interface Message {
   state: MessageState
   /** Modelo que gerou a mensagem (apenas para o assistente). */
   model?: string
+  incomplete?: boolean
   feedback?: 'up' | 'down'
 }
 
