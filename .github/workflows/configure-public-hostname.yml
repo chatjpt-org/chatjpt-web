@@ -53,11 +53,11 @@ jobs:
             cloudflared tunnel --config "$candidate" ingress validate
             route_output=""
             if route_output=$(cloudflared tunnel route dns --overwrite-dns aad256c9-2a17-4be5-b1a2-67abbb007b50 chatjpt.devarthur.com.br 2>&1); then
-              printf '%s\n' "$route_output"
-            elif printf '%s\n' "$route_output" | grep -Fq "is already configured to route to your tunnel"; then
-              printf '%s\n' "$route_output"
+              printf "%s\n" "$route_output"
+            elif printf "%s\n" "$route_output" | grep -Fq "is already configured to route to your tunnel"; then
+              printf "%s\n" "$route_output"
             else
-              printf '%s\n' "$route_output"
+              printf "%s\n" "$route_output"
               exit 1
             fi
             install -m 0644 "$candidate" "$config"
