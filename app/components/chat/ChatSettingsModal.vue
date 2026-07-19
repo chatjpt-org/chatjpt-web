@@ -47,7 +47,8 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
             <p class="settings-username">{{ session.user?.username }}</p>
           </div>
         </div>
-        <p class="settings-note">As contas sao administradas no servidor. Alteracoes de perfil nao estao disponiveis nesta versao.</p>
+        <p class="settings-note">{{ session.user?.role === 'admin' ? 'Administrador: voce tem acesso a todos os modelos e pode gerenciar permissoes.' : 'Usuario comum: os modelos disponiveis sao definidos pelo administrador.' }}</p>
+        <button v-if="session.user?.role === 'admin'" type="button" class="settings-admin" @click="close(); ui.adminOpen = true">Administrar modelos e acessos</button>
         <button type="button" class="settings-signout" @click="signOut">
           <LogOut :size="13" aria-hidden="true" /> Sair da sessao
         </button>
@@ -69,6 +70,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .settings-field-label { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--fg2); }
 .settings-username { margin: 0; color: var(--fg); font-size: 14px; }
 .settings-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.settings-admin { display: inline-flex; align-items: center; align-self: flex-start; min-height: 36px; border-radius: 7px; padding: 0 10px; background: var(--bg1); color: var(--fg); font-size: 12px; } .settings-admin:hover { background: var(--bg2); }
 .settings-signout { display: inline-flex; align-items: center; gap: 8px; color: var(--fg4); font-size: 12px; align-self: flex-start; }
 .settings-signout:hover { color: var(--red); }
 @media (max-width: 600px) {
@@ -88,7 +90,8 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   }
 
   .settings-close,
-  .settings-signout {
+  .settings-admin { display: inline-flex; align-items: center; align-self: flex-start; min-height: 36px; border-radius: 7px; padding: 0 10px; background: var(--bg1); color: var(--fg); font-size: 12px; } .settings-admin:hover { background: var(--bg2); }
+.settings-signout {
     min-width: 44px;
     min-height: 44px;
   }

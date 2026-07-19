@@ -91,7 +91,7 @@ function createConversation() {
       <span class="sidebar-avatar" aria-hidden="true">{{ session.initials }}</span>
       <span class="sidebar-user-info">
         <span class="sidebar-user-name">{{ session.user?.username }}</span>
-        <span class="sidebar-user-status">servidor-casa · online</span>
+        <span class="sidebar-user-status">{{ session.user?.role === 'admin' ? 'administrador' : 'usuario comum' }}</span>
       </span>
       <Settings :size="15" class="sidebar-user-gear" aria-hidden="true" />
     </button>

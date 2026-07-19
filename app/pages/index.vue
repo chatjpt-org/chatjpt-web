@@ -53,6 +53,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
     </main>
 
     <ChatSettingsModal v-if="ui.settingsOpen" />
+    <ChatAdminModal v-if="ui.adminOpen" />
   </div>
 </template>
 
