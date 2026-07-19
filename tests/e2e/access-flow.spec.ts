@@ -43,6 +43,7 @@ test('administrador gerencia modelos e concede acesso administrativo', async ({ 
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: [
         { id: 'qwen2.5:1.5b-instruct', object: 'model', owned_by: 'chatjpt', is_public: true },
         { id: 'qwen3:4b-instruct', object: 'model', owned_by: 'chatjpt', is_public: false },
+        { id: 'gemma3:270m', object: 'model', owned_by: 'chatjpt', is_public: false },
       ] }) })
     }
     if (path === '/api/v1/admin/users' && request.method() === 'GET') {
@@ -50,6 +51,10 @@ test('administrador gerencia modelos e concede acesso administrativo', async ({ 
         { id: 'admin-1', username: 'admin', role: 'admin' },
         { id: 'member-1', username: 'membro', role: 'member' },
       ] }) })
+    }
+    if (path === '/api/v1/admin/models/gemma3%3A270m' && request.method() === 'PUT') {
+      requests.push({ path, body: request.postDataJSON() })
+      return route.fulfill({ status: 404, contentType: 'application/json', body: JSON.stringify({ error: { message: 'model not found in the gateway catalog' } }) })
     }
     if (path === '/api/v1/admin/models/qwen3%3A4b-instruct' && request.method() === 'PUT') {
       requests.push({ path, body: request.postDataJSON() })
@@ -72,6 +77,9 @@ test('administrador gerencia modelos e concede acesso administrativo', async ({ 
   const dialog = page.getByRole('dialog', { name: 'Administracao' })
   await expect(dialog).toBeVisible()
 
+  const rejectedModel = dialog.locator('.model-row').filter({ hasText: 'gemma3:270m' }).getByRole('checkbox')
+  await rejectedModel.click()
+  await expect(rejectedModel).not.toBeChecked()
   await dialog.locator('.model-row').filter({ hasText: 'qwen3:4b-instruct' }).getByRole('checkbox').check()
   await dialog.getByRole('button', { name: 'Promover' }).click()
   await dialog.getByPlaceholder('novo-admin').fill('novo-admin')
@@ -79,6 +87,7 @@ test('administrador gerencia modelos e concede acesso administrativo', async ({ 
   await dialog.getByRole('button', { name: 'Criar administrador' }).click()
 
   await expect.poll(() => requests).toEqual([
+    { path: '/api/v1/admin/models/gemma3%3A270m', body: { is_public: true } },
     { path: '/api/v1/admin/models/qwen3%3A4b-instruct', body: { is_public: true } },
     { path: '/api/v1/admin/users/membro/role', body: { role: 'admin' } },
     { path: '/api/v1/admin/users', body: { username: 'novo-admin', password: 'senha-segura-123' } },

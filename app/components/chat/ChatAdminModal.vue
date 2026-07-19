@@ -34,15 +34,19 @@ async function load() {
 }
 
 async function setModelPublic(model: ApiAdminModel, isPublic: boolean) {
+  const previousVisibility = model.is_public
+  model.is_public = isPublic
+  errorMessage.value = ''
+
   try {
     const updated = await updateModelVisibility(model.id, isPublic)
     model.is_public = updated.is_public
   }
   catch (error) {
+    model.is_public = previousVisibility
     errorMessage.value = error instanceof Error ? error.message : 'Nao foi possivel atualizar o modelo.'
   }
 }
-
 async function promote(user: ApiAdminUser) {
   try {
     const updated = await updateUserRole(user.username, 'admin')
