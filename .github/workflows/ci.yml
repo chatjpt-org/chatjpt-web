@@ -41,3 +41,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build web image
         run: docker build --tag chatjpt-web:ci .
+      - name: Validate Caddy configuration
+        run: docker run --rm --entrypoint caddy chatjpt-web:ci validate --config /etc/caddy/Caddyfile --adapter caddyfile

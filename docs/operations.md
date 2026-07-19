@@ -2,7 +2,7 @@
 
 ## Production topology
 
-- Public URL: `https://jchat.devarthur.com.br`
+- Public URL: `https://chatjpt.devarthur.com.br`
 - KVM2 repository path: `/opt/chatjpt-web`
 - Web container: `chatjpt-web-web-1`
 - Local host binding: `127.0.0.1:8086`
@@ -10,7 +10,7 @@
 - API upstream name: `chatjpt-api:8080`
 - Cloudflare Tunnel configuration: `/etc/cloudflared/config.yml`
 
-The tunnel maps `jchat.devarthur.com.br` to `http://localhost:8086`. Caddy
+The tunnel maps `chatjpt.devarthur.com.br` to `http://localhost:8086`. The previous `jchat.devarthur.com.br` hostname remains available only to redirect existing links to the canonical URL. Caddy
 serves the generated Nuxt files and removes the `/api` prefix before proxying
 to the private API container. The browser never connects to the AI gateway.
 
@@ -38,13 +38,13 @@ It uses `KVM2_DEPLOY_SSH_PRIVATE_KEY`, connects through
 - GitHub Actions CI passed after the real API integration.
 - GitHub Actions deployment passed.
 - The web container reported `healthy` on KVM2.
-- `https://jchat.devarthur.com.br/` returned HTTP 200 through Cloudflare.
-- `https://jchat.devarthur.com.br/api/v1/auth/session` returned the API JSON
+- `https://chatjpt.devarthur.com.br/` returned HTTP 200 through Cloudflare.
+- `https://chatjpt.devarthur.com.br/api/v1/auth/session` returned the API JSON
   HTTP 401 response when no session cookie was supplied. This confirms the
   production reverse proxy reaches the API instead of the SPA fallback.
 
 ## Remaining browser check
 
-Sign in at `https://jchat.devarthur.com.br` with the administrator-created
+Sign in at `https://chatjpt.devarthur.com.br` with the administrator-created
 account and send one message. This is the final manual confirmation because the
 password is intentionally unavailable to automation.

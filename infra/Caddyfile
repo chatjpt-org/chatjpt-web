@@ -1,4 +1,7 @@
 :80 {
+  @legacy host jchat.devarthur.com.br
+  redir @legacy https://chatjpt.devarthur.com.br{uri} permanent
+
   route {
     handle_path /api/* {
       reverse_proxy chatjpt-api:8080 {

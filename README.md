@@ -8,7 +8,7 @@ o gateway de IA diretamente.
 
 ```text
 Browser
-  -> https://jchat.devarthur.com.br
+  -> https://chatjpt.devarthur.com.br
   -> Caddy (container chatjpt-web)
      -> /api/* -> chatjpt-api:8080, rede Docker privada jchat
         -> Cloudflare Access -> gateway no home server -> Ollama
@@ -52,7 +52,7 @@ intercepta `/api` para validar a interface sem depender de credenciais reais.
 ## Deploy na KVM2
 
 O `compose.yaml` expoe somente `127.0.0.1:8086`. O Cloudflare Tunnel e o unico
-componente que publica o dominio, apontando `jchat.devarthur.com.br` para
+componente que publica o dominio, apontando `chatjpt.devarthur.com.br` para
 `http://localhost:8086` na KVM2.
 
 O workflow `deploy.yml` usa SSH pelo Cloudflare Access e so executa quando a
