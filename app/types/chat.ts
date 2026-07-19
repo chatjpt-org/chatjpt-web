@@ -29,4 +29,5 @@ export interface Conversation {
 export interface SessionUser {
   id: string
   username: string
+  role: 'member' | 'admin'
 }

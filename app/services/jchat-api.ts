@@ -1,6 +1,7 @@
 export interface ApiUser {
   id: string
   username: string
+  role: 'member' | 'admin'
 }
 
 export interface ApiConversation {
@@ -24,6 +25,12 @@ export interface ApiModel {
 	object: string
 	owned_by: string
 }
+
+export interface ApiAdminModel extends ApiModel {
+  is_public: boolean
+}
+
+export type ApiAdminUser = ApiUser
 
 interface ApiErrorResponse {
   error?: {
@@ -96,6 +103,9 @@ function jsonRequest(method: string, body: unknown): RequestInit {
   }
 }
 
+export function register(username: string, password: string): Promise<ApiUser> {
+  return request<ApiUser>('/v1/auth/register', jsonRequest('POST', { username, password }))
+}
 export function signIn(username: string, password: string): Promise<ApiUser> {
   return request<ApiUser>('/v1/auth/login', jsonRequest('POST', { username, password }))
 }
@@ -113,6 +123,27 @@ export async function listModels(): Promise<ApiModel[]> {
 	return response.data
 }
 
+export async function listAdminModels(): Promise<ApiAdminModel[]> {
+  const response = await request<ApiDataResponse<ApiAdminModel[]>>('/v1/admin/models')
+  return response.data
+}
+
+export function updateModelVisibility(modelID: string, isPublic: boolean): Promise<ApiAdminModel> {
+  return request<ApiAdminModel>(`/v1/admin/models/${encodeURIComponent(modelID)}`, jsonRequest('PUT', { is_public: isPublic }))
+}
+
+export async function listAdminUsers(): Promise<ApiAdminUser[]> {
+  const response = await request<ApiDataResponse<ApiAdminUser[]>>('/v1/admin/users')
+  return response.data
+}
+
+export function createAdminUser(username: string, password: string): Promise<ApiAdminUser> {
+  return request<ApiAdminUser>('/v1/admin/users', jsonRequest('POST', { username, password }))
+}
+
+export function updateUserRole(username: string, role: 'member' | 'admin'): Promise<ApiAdminUser> {
+  return request<ApiAdminUser>(`/v1/admin/users/${encodeURIComponent(username)}/role`, jsonRequest('PATCH', { role }))
+}
 export async function listConversations(): Promise<ApiConversation[]> {
   const response = await request<ApiDataResponse<ApiConversation[]>>('/v1/conversations')
   return response.data

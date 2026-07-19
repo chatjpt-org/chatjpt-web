@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { JChatApiError, getSession, signIn as apiSignIn, signOut as apiSignOut } from '~/services/jchat-api'
+import { JChatApiError, getSession, register as apiRegister, signIn as apiSignIn, signOut as apiSignOut } from '~/services/jchat-api'
 import type { SessionUser } from '~/types/chat'
 
-function userFromApi(user: { id: string, username: string }): SessionUser {
-  return { id: user.id, username: user.username }
+function userFromApi(user: { id: string, username: string, role: 'member' | 'admin' }): SessionUser {
+  return { id: user.id, username: user.username, role: user.role }
 }
 
 export const useSessionStore = defineStore('session', () => {
@@ -39,6 +39,12 @@ export const useSessionStore = defineStore('session', () => {
     return restorePromise
   }
 
+  async function register(username: string, password: string) {
+    errorMessage.value = null
+    user.value = userFromApi(await apiRegister(username, password))
+    loaded.value = true
+  }
+
   async function signIn(username: string, password: string) {
     errorMessage.value = null
     user.value = userFromApi(await apiSignIn(username, password))
@@ -61,5 +67,5 @@ export const useSessionStore = defineStore('session', () => {
     errorMessage.value = null
   }
 
-  return { user, loaded, errorMessage, isAuthenticated, initials, restoreSession, signIn, signOut, clear }
+  return { user, loaded, errorMessage, isAuthenticated, initials, restoreSession, register, signIn, signOut, clear }
 })

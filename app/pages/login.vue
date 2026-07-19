@@ -48,7 +48,7 @@ async function submit() {
         <h1 class="login-title">
           Entrar no chat<span class="login-title-accent">JPT</span>
         </h1>
-        <p class="login-subtitle">Entre com a conta criada pelo administrador.</p>
+        <p class="login-subtitle">Entre com sua conta para acessar suas conversas.</p>
       </div>
 
       <form class="login-form" novalidate @submit.prevent="submit">
@@ -96,6 +96,10 @@ async function submit() {
           {{ submitting ? 'Entrando...' : 'Continuar' }}
         </button>
       </form>
+
+      <NuxtLink to="/register" class="login-register-link">
+        Ainda nao tem uma conta? Criar conta
+      </NuxtLink>
 
       <footer class="login-footer">
         <span class="status-dot" aria-hidden="true" /> autenticacao local · servidor-casa
@@ -251,6 +255,16 @@ async function submit() {
 .login-submit:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+.login-register-link {
+  color: var(--yellow);
+  font-size: 12px;
+  text-align: center;
+}
+
+.login-register-link:hover {
+  color: var(--orange);
 }
 
 .login-footer {

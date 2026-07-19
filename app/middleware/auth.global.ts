@@ -4,10 +4,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const session = useSessionStore()
   await session.restoreSession()
 
-  if (!session.isAuthenticated && to.path !== '/login') {
+  if (!session.isAuthenticated && to.path !== '/login' && to.path !== '/register') {
     return navigateTo('/login')
   }
-  if (session.isAuthenticated && to.path === '/login') {
+  if (session.isAuthenticated && (to.path === '/login' || to.path === '/register')) {
     return navigateTo('/')
   }
 })

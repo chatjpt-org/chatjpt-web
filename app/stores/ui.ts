@@ -7,6 +7,7 @@ export const useUiStore = defineStore('ui', () => {
   const sidebarCollapsed = ref(false)
   const sidebarMobileOpen = ref(false)
   const settingsOpen = ref(false)
+  const adminOpen = ref(false)
 
   function toggleSidebarCollapsed() {
     sidebarCollapsed.value = !sidebarCollapsed.value
@@ -24,6 +25,7 @@ export const useUiStore = defineStore('ui', () => {
     sidebarCollapsed,
     sidebarMobileOpen,
     settingsOpen,
+    adminOpen,
     toggleSidebarCollapsed,
     openMobileSidebar,
     closeMobileSidebar,
