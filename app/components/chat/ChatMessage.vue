@@ -55,6 +55,11 @@ async function onContentClick(event: MouseEvent) {
   <div v-else class="message-assistant" :class="{ 'message-error': message.state === 'error' }">
     <div class="message-meta">{{ metaText }}</div>
 
+    <div v-if="message.incomplete" class="message-incomplete-box" role="status">
+      <AlertCircle :size="15" class="message-incomplete-icon" aria-hidden="true" />
+      <p>A resposta foi interrompida antes de ser concluida.</p>
+    </div>
+
     <div v-if="message.state === 'error'" class="message-error-box" role="alert">
       <AlertCircle :size="15" class="message-error-icon" aria-hidden="true" />
       <div>
@@ -162,6 +167,29 @@ async function onContentClick(event: MouseEvent) {
 .message-action:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+.message-incomplete-box {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: rgba(250, 189, 47, 0.08);
+  border: 1px solid rgba(250, 189, 47, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--fg3);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.message-incomplete-box p {
+  margin: 0;
+}
+
+.message-incomplete-icon {
+  color: var(--yellow);
+  flex: none;
+  margin-top: 1px;
 }
 
 .message-error-box {
