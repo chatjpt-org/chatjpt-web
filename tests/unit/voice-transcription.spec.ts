@@ -35,7 +35,7 @@ describe('ditado por voz', () => {
     browserWindow.webkitSpeechRecognition = undefined
   })
 
-  
+
   it('preenche o rascunho com a transcricao sem enviar a mensagem', async () => {
     const wrapper = mount(ChatComposer)
     await nextTick()
