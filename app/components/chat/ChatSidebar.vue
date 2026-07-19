@@ -352,4 +352,29 @@ function createConversation() {
     pointer-events: none;
   }
 }
+@media (max-width: 900px) {
+  .sidebar {
+    width: min(280px, calc(100vw - 32px));
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .icon-button,
+  .new-chat-button,
+  .conversation-delete {
+    width: 44px;
+    height: 44px;
+  }
+
+  .conversation-button {
+    min-height: 52px;
+    padding-right: 48px;
+  }
+
+  .conversation-delete {
+    right: 2px;
+    opacity: 1;
+  }
+}
 </style>

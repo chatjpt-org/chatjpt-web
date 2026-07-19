@@ -198,4 +198,26 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
     display: grid;
   }
 }
+@media (max-width: 600px) {
+  .chat-header {
+    padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
+    gap: 4px;
+  }
+
+  .menu-button,
+  .copy-link-button {
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+
+  .copy-link-button {
+    padding: 0;
+    font-size: 0;
+  }
+
+  .title-button {
+    padding: 8px;
+  }
+}
 </style>

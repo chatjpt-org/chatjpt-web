@@ -179,4 +179,43 @@ function onKeydown(event: KeyboardEvent) {
 .model-picker-label { color: var(--orange); font-size: 10px; text-transform: lowercase; }
 .model-picker-footer { display: flex; flex-wrap: wrap; gap: 12px; padding: 11px 20px; border-top: 1px solid var(--bg1); color: var(--faint); font-size: 10px; }
 @media (max-width: 600px) { .model-picker-dialog { width: 100%; } .model-picker-option { grid-template-columns: 18px minmax(0, 1fr); } .model-picker-label { grid-column: 2; } .model-picker-description { white-space: normal; } }
+@media (max-width: 600px) {
+  .model-picker-trigger {
+    max-width: min(126px, calc(100vw - 194px));
+    height: 44px;
+  }
+
+  .model-picker-overlay {
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  .model-picker-dialog {
+    max-height: calc(100dvh - 24px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .model-picker-header {
+    padding: 14px 16px 12px;
+  }
+
+  .model-picker-close {
+    width: 44px;
+    height: 44px;
+    margin: -8px -8px 0 0;
+  }
+
+  .model-picker-list {
+    flex: 1;
+    max-height: none;
+  }
+
+  .model-picker-option {
+    min-height: 64px;
+  }
+
+  .model-picker-footer {
+    display: none;
+  }
+}
 </style>

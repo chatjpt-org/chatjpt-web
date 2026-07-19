@@ -132,4 +132,31 @@ function toggleVoiceTranscription() {
 .composer-disclaimer { margin: 0; font-size: 10.5px; color: var(--faint); text-align: center; }
 @keyframes voice-pulse { 50% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.18); } }
 @media (max-width: 900px) { .composer-area { padding: 10px 12px 12px; } }
+@media (max-width: 600px) {
+  .composer-area {
+    padding: 10px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+
+  .composer-card {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .composer-input {
+    font-size: 16px;
+  }
+
+  .composer-toolbar-left,
+  .composer-toolbar-right {
+    gap: 2px;
+  }
+
+  .composer-attach,
+  .voice-button,
+  .send-button {
+    width: 44px;
+    height: 44px;
+  }
+
+}
 </style>

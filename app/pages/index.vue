@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue'
 import { useChatStore } from '~/stores/chat'
 import { useUiStore } from '~/stores/ui'
 
 const chat = useChatStore()
 const ui = useUiStore()
 
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') ui.closeMobileSidebar()
+}
+
 onMounted(() => {
   void chat.loadModels()
   void chat.loadConversations()
+  document.addEventListener('keydown', onKeydown)
 })
+
+onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
@@ -51,7 +58,8 @@ onMounted(() => {
 
 <style scoped>
 .chat-layout {
-  height: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
   display: flex;
   background: var(--bg0);
 }

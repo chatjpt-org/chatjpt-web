@@ -90,4 +90,14 @@ watch(
     padding: 12px 16px 0;
   }
 }
+@media (max-width: 600px) {
+  .messages-scroll {
+    padding: 10px 12px 0;
+  }
+
+  .messages-column {
+    gap: 18px;
+    padding-bottom: 16px;
+  }
+}
 </style>
