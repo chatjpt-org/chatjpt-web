@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { Paperclip, SendHorizontal, Square } from '@lucide/vue'
-import { computed, ref } from 'vue'
+import { Mic, Paperclip, SendHorizontal, Square } from '@lucide/vue'
+import { computed, onMounted, ref } from 'vue'
 import ChatModelPicker from '~/components/chat/ChatModelPicker.vue'
+import { useVoiceTranscription } from '~/composables/useVoiceTranscription'
 import { useChatStore } from '~/stores/chat'
 
 const chat = useChatStore()
 const draft = ref('')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const voice = useVoiceTranscription()
 const canSend = computed(() => draft.value.trim().length > 0 && !chat.isBusy)
+
+onMounted(() => voice.checkSupport())
 
 function send() {
   if (!canSend.value) return
@@ -30,6 +34,18 @@ function resizeTextarea() {
   element.style.height = 'auto'
   element.style.height = `${Math.min(element.scrollHeight, 200)}px`
 }
+
+function toggleVoiceTranscription() {
+  if (voice.isListening.value) {
+    voice.stop()
+    return
+  }
+
+  voice.start(draft.value, (transcript) => {
+    draft.value = transcript
+    resizeTextarea()
+  })
+}
 </script>
 
 <template>
@@ -46,9 +62,22 @@ function resizeTextarea() {
         @input="resizeTextarea"
       />
       <div class="composer-toolbar">
-        <button type="button" class="composer-attach" aria-label="Anexar arquivo (indisponivel)" title="Anexar arquivo (indisponivel)" disabled>
-          <Paperclip :size="14" aria-hidden="true" />
-        </button>
+        <div class="composer-toolbar-left">
+          <button type="button" class="composer-attach" aria-label="Anexar arquivo (indisponivel)" title="Anexar arquivo (indisponivel)" disabled>
+            <Paperclip :size="14" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            class="voice-button"
+            :class="{ 'voice-button--listening': voice.isListening }"
+            :disabled="chat.isBusy || !voice.isSupported"
+            :aria-label="voice.isSupported ? (voice.isListening ? 'Parar ditado por voz' : 'Iniciar ditado por voz') : 'Ditado por voz indisponivel neste navegador'"
+            :title="voice.isSupported ? (voice.isListening ? 'Parar ditado por voz' : 'Iniciar ditado por voz') : 'Use um navegador compativel com reconhecimento de voz'"
+            @click="toggleVoiceTranscription"
+          >
+            <Mic :size="15" aria-hidden="true" />
+          </button>
+        </div>
 
         <div class="composer-toolbar-right">
           <ChatModelPicker />
@@ -61,6 +90,8 @@ function resizeTextarea() {
         </div>
       </div>
     </div>
+<p v-if="!voice.isSupported" class="composer-voice-error" role="status">Ditado por voz indisponivel neste navegador.</p>
+    <p v-else-if="voice.transcriptionError" class="composer-voice-error" role="status">{{ voice.transcriptionError }}</p>
     <p class="composer-disclaimer">chatJPT pode cometer erros. Suas conversas ficam no seu servidor.</p>
   </div>
 </template>
@@ -73,12 +104,19 @@ function resizeTextarea() {
 .composer-input::placeholder { color: var(--faint); }
 .composer-input:focus { outline: none; }
 .composer-toolbar { display: flex; align-items: center; justify-content: space-between; }
+.composer-toolbar-left { display: flex; align-items: center; gap: 8px; }
 .composer-attach { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; color: var(--muted); }
 .composer-attach:disabled { opacity: 0.5; cursor: default; }
+.voice-button { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; color: var(--muted); }
+.voice-button:hover:not(:disabled) { color: var(--fg); background: var(--bg1); }
+.voice-button:disabled { opacity: 0.5; cursor: default; }
+.voice-button--listening { color: var(--bg-hard); background: var(--red); animation: voice-pulse 1.2s ease-in-out infinite; }
 .composer-toolbar-right { display: flex; align-items: center; gap: 10px; }
 .send-button { width: 32px; height: 32px; border-radius: 8px; background: var(--red); display: grid; place-items: center; color: var(--bg-hard); }
 .send-button:hover:not(:disabled) { background: var(--orange); }
 .send-button:disabled { opacity: 0.45; cursor: default; }
+.composer-voice-error { margin: 0; font-size: 11px; color: var(--orange); text-align: center; }
 .composer-disclaimer { margin: 0; font-size: 10.5px; color: var(--faint); text-align: center; }
+@keyframes voice-pulse { 50% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.18); } }
 @media (max-width: 900px) { .composer-area { padding: 10px 12px 12px; } }
 </style>
