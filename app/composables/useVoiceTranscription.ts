@@ -67,6 +67,7 @@ function errorMessage(error: string): string | null {
 export function useVoiceTranscription() {
   const isSupported = ref(false)
   const isListening = ref(false)
+  const wasStopped = ref(false)
   const transcriptionError = ref<string | null>(null)
   let recognition: BrowserSpeechRecognition | null = null
 
@@ -79,6 +80,7 @@ export function useVoiceTranscription() {
     if (!Constructor || isListening.value) return
 
     transcriptionError.value = null
+    wasStopped.value = false
     const prefix = initialText.trim()
     let finalTranscript = ''
     recognition = new Constructor()
@@ -102,6 +104,7 @@ export function useVoiceTranscription() {
     recognition.onend = () => {
       isListening.value = false
       recognition = null
+      if (!transcriptionError.value) wasStopped.value = true
     }
 
     try {
@@ -115,10 +118,16 @@ export function useVoiceTranscription() {
   }
 
   function stop() {
-    recognition?.stop()
+    if (!recognition || !isListening.value) return
+
+    // Recognition.onend can take a moment to arrive. Update the UI immediately
+    // so the user knows their click stopped the recording.
+    isListening.value = false
+    wasStopped.value = true
+    recognition.stop()
   }
 
   onUnmounted(() => recognition?.abort())
 
-  return { isSupported, isListening, transcriptionError, checkSupport, start, stop }
+  return { isSupported, isListening, wasStopped, transcriptionError, checkSupport, start, stop }
 }
