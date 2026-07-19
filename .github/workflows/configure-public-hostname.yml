@@ -58,7 +58,15 @@ jobs:
             fi
             install -m 0644 "$candidate" "$config"
             systemctl restart --no-block cloudflared
-            systemctl is-active --quiet cloudflared
+            for attempt in $(seq 1 15); do
+              if systemctl is-active --quiet cloudflared; then
+                break
+              fi
+              if [ "$attempt" = 15 ]; then
+                exit 1
+              fi
+              sleep 1
+            done
             curl --fail --silent --show-error --max-time 15 -H "Host: chatjpt.devarthur.com.br" http://127.0.0.1:8086/ >/dev/null
           '
 
