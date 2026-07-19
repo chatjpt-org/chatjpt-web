@@ -49,8 +49,16 @@ describe('ditado por voz', () => {
     await nextTick()
 
     expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('explique o que e Go')
-    expect(wrapper.find('button[aria-label="Parar ditado por voz"]').exists()).toBe(true)
+    expect(wrapper.find('button[aria-label="Parar ditado por voz"]').classes()).toContain('voice-button--listening')
+    expect(wrapper.get('.voice-button').attributes('aria-pressed')).toBe('true')
+    expect(wrapper.text()).toContain('Ouvindo. Clique no quadrado para encerrar o ditado.')
+
     await wrapper.get('button[aria-label="Parar ditado por voz"]').trigger('click')
+    await nextTick()
+
+    expect(wrapper.find('button[aria-label="Iniciar ditado por voz"]').exists()).toBe(true)
+    expect(wrapper.get('.voice-button').attributes('aria-pressed')).toBe('false')
+    expect(wrapper.text()).toContain('Ditado encerrado.')
     wrapper.unmount()
   })
 })

@@ -8,10 +8,18 @@ import { useChatStore } from '~/stores/chat'
 const chat = useChatStore()
 const draft = ref('')
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const voice = useVoiceTranscription()
+const {
+  checkSupport,
+  isListening,
+  isSupported,
+  start,
+  stop,
+  transcriptionError,
+  wasStopped,
+} = useVoiceTranscription()
 const canSend = computed(() => draft.value.trim().length > 0 && !chat.isBusy)
 
-onMounted(() => voice.checkSupport())
+onMounted(checkSupport)
 
 function send() {
   if (!canSend.value) return
@@ -36,12 +44,12 @@ function resizeTextarea() {
 }
 
 function toggleVoiceTranscription() {
-  if (voice.isListening.value) {
-    voice.stop()
+  if (isListening.value) {
+    stop()
     return
   }
 
-  voice.start(draft.value, (transcript) => {
+  start(draft.value, (transcript) => {
     draft.value = transcript
     resizeTextarea()
   })
@@ -69,13 +77,15 @@ function toggleVoiceTranscription() {
           <button
             type="button"
             class="voice-button"
-            :class="{ 'voice-button--listening': voice.isListening }"
-            :disabled="chat.isBusy || !voice.isSupported"
-            :aria-label="voice.isSupported ? (voice.isListening ? 'Parar ditado por voz' : 'Iniciar ditado por voz') : 'Ditado por voz indisponivel neste navegador'"
-            :title="voice.isSupported ? (voice.isListening ? 'Parar ditado por voz' : 'Iniciar ditado por voz') : 'Use um navegador compativel com reconhecimento de voz'"
+            :class="{ 'voice-button--listening': isListening }"
+            :disabled="chat.isBusy || !isSupported"
+            :aria-pressed="isListening"
+            :aria-label="isSupported ? (isListening ? 'Parar ditado por voz' : 'Iniciar ditado por voz') : 'Ditado por voz indisponivel neste navegador'"
+            :title="isSupported ? (isListening ? 'Parar ditado por voz' : 'Iniciar ditado por voz') : 'Use um navegador compativel com reconhecimento de voz'"
             @click="toggleVoiceTranscription"
           >
-            <Mic :size="15" aria-hidden="true" />
+            <Square v-if="isListening" :size="12" fill="currentColor" aria-hidden="true" />
+            <Mic v-else :size="15" aria-hidden="true" />
           </button>
         </div>
 
@@ -90,8 +100,10 @@ function toggleVoiceTranscription() {
         </div>
       </div>
     </div>
-<p v-if="!voice.isSupported" class="composer-voice-error" role="status">Ditado por voz indisponivel neste navegador.</p>
-    <p v-else-if="voice.transcriptionError" class="composer-voice-error" role="status">{{ voice.transcriptionError }}</p>
+    <p v-if="!isSupported" class="composer-voice-error" role="status">Ditado por voz indisponivel neste navegador.</p>
+    <p v-else-if="transcriptionError" class="composer-voice-error" role="status">{{ transcriptionError }}</p>
+    <p v-else-if="isListening" class="composer-voice-status" role="status">Ouvindo. Clique no quadrado para encerrar o ditado.</p>
+    <p v-else-if="wasStopped" class="composer-voice-status" role="status">Ditado encerrado.</p>
     <p class="composer-disclaimer">chatJPT pode cometer erros. Suas conversas ficam no seu servidor.</p>
   </div>
 </template>
@@ -110,12 +122,13 @@ function toggleVoiceTranscription() {
 .voice-button { width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; color: var(--muted); }
 .voice-button:hover:not(:disabled) { color: var(--fg); background: var(--bg1); }
 .voice-button:disabled { opacity: 0.5; cursor: default; }
-.voice-button--listening { color: var(--bg-hard); background: var(--red); animation: voice-pulse 1.2s ease-in-out infinite; }
+.voice-button--listening, .voice-button--listening:hover:not(:disabled) { color: var(--bg-hard); background: var(--red); animation: voice-pulse 1.2s ease-in-out infinite; }
 .composer-toolbar-right { display: flex; align-items: center; gap: 10px; }
 .send-button { width: 32px; height: 32px; border-radius: 8px; background: var(--red); display: grid; place-items: center; color: var(--bg-hard); }
 .send-button:hover:not(:disabled) { background: var(--orange); }
 .send-button:disabled { opacity: 0.45; cursor: default; }
 .composer-voice-error { margin: 0; font-size: 11px; color: var(--orange); text-align: center; }
+.composer-voice-status { margin: 0; font-size: 11px; color: var(--muted); text-align: center; }
 .composer-disclaimer { margin: 0; font-size: 10.5px; color: var(--faint); text-align: center; }
 @keyframes voice-pulse { 50% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.18); } }
 @media (max-width: 900px) { .composer-area { padding: 10px 12px 12px; } }
