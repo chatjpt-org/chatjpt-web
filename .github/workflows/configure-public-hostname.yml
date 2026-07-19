@@ -53,7 +53,7 @@ jobs:
             cloudflared tunnel --config "$candidate" ingress validate
             cloudflared tunnel route dns --overwrite-dns aad256c9-2a17-4be5-b1a2-67abbb007b50 chatjpt.devarthur.com.br
             install -m 0644 "$candidate" "$config"
-            systemctl restart cloudflared
+            systemctl restart --no-block cloudflared
             systemctl is-active --quiet cloudflared
             curl --fail --silent --show-error --max-time 15 -H "Host: chatjpt.devarthur.com.br" http://127.0.0.1:8086/ >/dev/null
           '
