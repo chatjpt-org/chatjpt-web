@@ -80,7 +80,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
     >
       <Check v-if="copied" :size="13" aria-hidden="true" />
       <Copy v-else :size="13" aria-hidden="true" />
-      {{ copied ? 'Copiado!' : 'Copiar link' }}
+      <span class="copy-link-label">{{ copied ? 'Copiado!' : 'Copiar link' }}</span>
     </button>
   </header>
 </template>
@@ -208,16 +208,40 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocumentClick))
   .copy-link-button {
     width: 44px;
     height: 44px;
-    justify-content: center;
   }
 
   .copy-link-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: 0;
+    background: transparent;
     padding: 0;
-    font-size: 0;
   }
 
-  .title-button {
-    padding: 8px;
+  .copy-link-label {
+    display: none;
+  }
+
+  .copy-link-button::before {
+    position: absolute;
+    inset: 4px;
+    content: '';
+    background: var(--bg1);
+    border-radius: 8px;
+  }
+
+  .copy-link-button:hover {
+    background: transparent;
+  }
+
+  .copy-link-button:hover::before {
+    background: var(--bg2);
+  }
+
+  .copy-link-button svg {
+    position: relative;
+    z-index: 1;
   }
 }
 </style>

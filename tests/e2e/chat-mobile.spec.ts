@@ -79,6 +79,17 @@ test('fluxo móvel: navegação, modelo e conversa sem estouro horizontal', asyn
   await page.locator('.sidebar').getByRole('button', { name: 'Nova conversa' }).click()
   await expect(page.locator('.sidebar')).not.toHaveClass(/sidebar-mobile-open/)
   await expect(page.getByText('Conversa nova')).toBeVisible()
+  const copyIconIsCentered = await page.locator('.copy-link-button').evaluate(button => {
+    const icon = button.querySelector('svg')
+    if (!icon) return false
+
+    const buttonBounds = button.getBoundingClientRect()
+    const iconBounds = icon.getBoundingClientRect()
+    const horizontalOffset = Math.abs((buttonBounds.left + buttonBounds.width / 2) - (iconBounds.left + iconBounds.width / 2))
+    const verticalOffset = Math.abs((buttonBounds.top + buttonBounds.height / 2) - (iconBounds.top + iconBounds.height / 2))
+    return horizontalOffset <= 1 && verticalOffset <= 1
+  })
+  expect(copyIconIsCentered).toBe(true)
 
   await page.getByRole('button', { name: 'Selecionar modelo' }).click()
   const dialog = page.getByRole('dialog', { name: 'Selecionar modelo' })
